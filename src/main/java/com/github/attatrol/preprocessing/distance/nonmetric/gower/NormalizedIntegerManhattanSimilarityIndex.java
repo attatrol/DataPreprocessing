@@ -33,8 +33,8 @@ public class NormalizedIntegerManhattanSimilarityIndex implements GowerTokenSimi
      *
      */
     public static class Factory
-            implements GowerTokenSimilarityIndexFactory<NormalizedFloatManhattanSimilarityIndex> {
-        public NormalizedFloatManhattanSimilarityIndex getTokenDifferenceCalculator(
+            implements GowerTokenSimilarityIndexFactory<NormalizedIntegerManhattanSimilarityIndex> {
+        public NormalizedIntegerManhattanSimilarityIndex getTokenDifferenceCalculator(
                 AbstractTokenDataSource<?> dataSource, int index) throws IOException {
             dataSource.reset();
             int min = 0;
@@ -52,7 +52,7 @@ public class NormalizedIntegerManhattanSimilarityIndex implements GowerTokenSimi
                     min = value;
                 }
             }
-            return new NormalizedFloatManhattanSimilarityIndex(max - min);
+            return new NormalizedIntegerManhattanSimilarityIndex(max - min);
         }
     }
 }

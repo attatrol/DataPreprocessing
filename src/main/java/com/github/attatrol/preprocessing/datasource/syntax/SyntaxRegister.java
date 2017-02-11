@@ -72,8 +72,15 @@ public enum SyntaxRegister {
         }
     });
 
+    /**
+     * Syntax of a data source.
+     */
     private TokenDataSourceSyntax<?, ?> syntax;
 
+    /**
+     * Default ctor.
+     * @param syntax syntax
+     */
     SyntaxRegister(TokenDataSourceSyntax<?, ?> syntax) {
         this.syntax = syntax;
     }

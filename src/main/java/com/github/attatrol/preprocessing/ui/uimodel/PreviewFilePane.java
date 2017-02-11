@@ -44,6 +44,7 @@ class PreviewFilePane extends VBox {
 		lines.forEach(line -> {
 		    textBox.appendText(line);
 		    textBox.appendText(System.getProperty("line.separator"));});
+		textBox.positionCaret(0);
 		return new PreviewFilePane(label, textBox);
 	}
 

@@ -43,7 +43,7 @@ public interface DistanceFunction {
      */
     static Object[] getMaskedTokens(Object[] tokens, int[] mask) {
         Object[] converted = new Object[mask.length];
-        for (int i = 0; i < tokens.length; i++) {
+        for (int i = 0; i < mask.length; i++) {
             converted[i] = tokens[mask[i]];
         }
         return converted;

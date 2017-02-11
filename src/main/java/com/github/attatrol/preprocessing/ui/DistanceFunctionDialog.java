@@ -8,10 +8,11 @@ import java.util.Optional;
 
 import com.github.attatrol.preprocessing.datasource.AbstractTokenDataSource;
 import com.github.attatrol.preprocessing.datasource.Record;
+import com.github.attatrol.preprocessing.datasource.TokenDataSourceUtils;
 import com.github.attatrol.preprocessing.datasource.parsing.TokenType;
 import com.github.attatrol.preprocessing.distance.DistanceFunction;
 import com.github.attatrol.preprocessing.distance.MaskedDistanceFunction;
-import com.github.attatrol.preprocessing.distance.Registers;
+import com.github.attatrol.preprocessing.distance.DistanceRegisters;
 import com.github.attatrol.preprocessing.distance.metric.Metric;
 import com.github.attatrol.preprocessing.distance.metric.NormalizedMetric;
 import com.github.attatrol.preprocessing.distance.metric.PNorm;
@@ -19,6 +20,8 @@ import com.github.attatrol.preprocessing.distance.nonmetric.gower.GowerDistance;
 import com.github.attatrol.preprocessing.distance.nonmetric.gower.GowerTokenSimilarityIndexFactory;
 import com.github.attatrol.preprocessing.distance.nonmetric.similarity.DissimilarityFunction;
 import com.github.attatrol.preprocessing.distance.nonmetric.similarity.SimilarityIndexFactory;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nComboBox;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.GenericValueReturnDialog;
 import com.github.attatrol.preprocessing.ui.misc.PositiveDoubleTextField;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
@@ -59,26 +62,31 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
 
     private Label statusLabel = new Label();
     {
-        statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold; -fx-font-size: 19;");
         statusLabel.setWrapText(true);
         statusLabel.setMaxWidth(400);
     }
 
     private ToggleGroup group = new ToggleGroup();
 
-    private RadioButton classicMetricRadioButton = new RadioButton("Classic metric function");
+    private RadioButton classicMetricRadioButton = new RadioButton(
+            UiI18nProvider.INSTANCE.getValue("distance.dialog.radio.metric"));
 
-    private RadioButton normalizedMetricRadioButton = new RadioButton("Normalized metric function");
+    private RadioButton normalizedMetricRadioButton = new RadioButton(
+            UiI18nProvider.INSTANCE.getValue("distance.dialog.radio.normalized"));
 
-    private RadioButton syntheticRadioButton = new RadioButton("Gower's distance function");
+    private RadioButton syntheticRadioButton = new RadioButton(
+            UiI18nProvider.INSTANCE.getValue("distance.dialog.radio.gower"));
 
     private RadioButton categoricalRadioButton =
-            new RadioButton("Dissimilarity categorical distance");
+            new RadioButton(UiI18nProvider.INSTANCE.getValue("distance.dialog.radio.categorical"));
 
-    private Button showNextButton = new Button(String.format("Show %d next records",
+    private Button showNextButton = new Button(String.format(
+            UiI18nProvider.INSTANCE.getValue("distance.dialog.table.button.loadnext"),
             TokenDataSourceTableView.DEFAULT_SHOWN_RECORD_NUMBER));
 
-    private Button showFromBeginningButton = new Button("Show from beginning");
+    private Button showFromBeginningButton = new Button(
+            UiI18nProvider.INSTANCE.getValue("distance.dialog.table.button.reload"));
 
     private Button okButton;
 
@@ -87,9 +95,9 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
      */
     private MetricComboBox metricComboBox = new MetricComboBox();
 
-    private ComboBox<SimilarityIndexFactory<?>> sifFactoryComboBox = new ComboBox<>();
+    private ComboBox<SimilarityIndexFactory<?>> sifFactoryComboBox = new UiI18nComboBox<>();
     {
-        sifFactoryComboBox.getItems().addAll(Registers.SIMILARITY_INDEX_FACTORY_REGISTER);
+        sifFactoryComboBox.getItems().addAll(DistanceRegisters.SIMILARITY_INDEX_FACTORY_REGISTER);
     }
 
     private TokenDataSourceTableView tableView;
@@ -213,6 +221,7 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
         gridPane.add(tableView, 1, 1, 3, 6);
         getDialogPane().setContent(gridPane);
         initialDataProcessingType.enablePossibleChoices(this);
+        setTitle(UiI18nProvider.INSTANCE.getValue("distance.dialog.title"));
     }
 
     /**
@@ -235,9 +244,31 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
         }
         else {
             final int[] mask = produceMask();
-            distanceFunction = new MaskedDistanceFunction(distanceFunctionType
-                    .createDistanceFunction(this, dataSource),
-                    mask);
+            @SuppressWarnings({
+                "unchecked",
+                "rawtypes"
+            })
+            final AbstractTokenDataSource<?> maskedDataSource = new TokenDataSourceUtils
+                    .MaskedTokenDataSource(dataSource, mask);
+            if (distanceFunctionType != DistanceFunctionType.GOWER_DISTANCE) {
+                distanceFunction = new MaskedDistanceFunction(distanceFunctionType
+                        .createDistanceFunction(this, maskedDataSource),
+                        mask);
+            }
+            else { // Gower's is a special case.
+                GowerTokenSimilarityIndexFactory<?>[] maskedGowerTokenSimilarityIndexesFactories =
+                        new GowerTokenSimilarityIndexFactory<?>[mask.length];
+                double[] maskedWeights = new double[mask.length];
+                for (int i = 0; i < mask.length; i++) {
+                    maskedGowerTokenSimilarityIndexesFactories[i] =
+                            gowerTokenSimilarityIndexesFactories[mask[i]];
+                    maskedWeights[i] = weights[mask[i]];
+                }
+                distanceFunction = new MaskedDistanceFunction(
+                        GowerDistance.produceGowerDistance(
+                                maskedGowerTokenSimilarityIndexesFactories, maskedWeights,
+                                maskedDataSource), mask);
+            }
         }
     }
 
@@ -336,8 +367,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
      * Internal enum that defines types of possible
      */
     private enum DistanceIncomingDataType {
-        UNSUPPORTED_DATA(
-                "Incoming data is completely unsupported, you can not create distance function") {
+        UNSUPPORTED_DATA(UiI18nProvider.INSTANCE.getValue(
+                "distance.dialog.incoming.data.type.unsupported")) {
             @Override
             public void enablePossibleChoices(DistanceFunctionDialog form) {
                 form.classicMetricRadioButton.setDisable(true);
@@ -346,8 +377,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                 form.categoricalRadioButton.setDisable(true);
             }
         },
-        PURE_NUMERIC_DATA(
-                "Incoming data is purely numeric, therefore you can use either classic or normalized metrics") {
+        PURE_NUMERIC_DATA(UiI18nProvider.INSTANCE.getValue(
+                "distance.dialog.incoming.data.type.numeric")) {
             @Override
             public void enablePossibleChoices(DistanceFunctionDialog form) {
                 form.classicMetricRadioButton.setDisable(false);
@@ -356,8 +387,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                 form.categoricalRadioButton.setDisable(true);
             }
         },
-        MIXED_DATA(
-                "With mixed data you have a single option: use synthetic Gower's distance function") {
+        MIXED_DATA(UiI18nProvider.INSTANCE.getValue(
+                "distance.dialog.incoming.data.type.mixed")) {
             @Override
             public void enablePossibleChoices(DistanceFunctionDialog form) {
                 form.classicMetricRadioButton.setDisable(true);
@@ -366,9 +397,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                 form.categoricalRadioButton.setDisable(true);
             }
         },
-        PURE_CATEGORICAL_DATA(
-                "Incoming data is purely categorical, therefore use either dissimilarity function"
-                        + " for pure categorical data or token by token define Gower's distance") {
+        PURE_CATEGORICAL_DATA(UiI18nProvider.INSTANCE.getValue(
+                "distance.dialog.incoming.data.type.categorical")) {
             @Override
             public void enablePossibleChoices(DistanceFunctionDialog form) {
                 form.classicMetricRadioButton.setDisable(true);
@@ -435,7 +465,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
      *
      */
     private enum DistanceFunctionType {
-        CLASSIC_METRIC("Choose metric from combo box.") {
+        CLASSIC_METRIC(UiI18nProvider
+                .INSTANCE.getValue("distance.dialog.distance.type.classic.metric")) {
 
             @Override
             protected TokenSettingsView getTokenSettingsView(DistanceFunctionDialog form,
@@ -447,6 +478,7 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
             public void setUi(DistanceFunctionDialog form) {
                 super.setUi(form);
                 form.gridPane.add(form.metricComboBox, 0, 6);
+                form.metricComboBox.getSelectionModel().select(0);
             }
 
             @Override
@@ -456,7 +488,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                 return form.metricComboBox.getChosenMetric();
             }
         },
-        NORMALIZED_METRIC("Choose metric from the combo box, metric will be normalized.") {
+        NORMALIZED_METRIC(UiI18nProvider
+                .INSTANCE.getValue("distance.dialog.distance.type.normalized.metric")) {
 
             @Override
             protected TokenSettingsView getTokenSettingsView(DistanceFunctionDialog form,
@@ -473,12 +506,13 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
             public DistanceFunction createDistanceFunction(DistanceFunctionDialog form,
                     AbstractTokenDataSource<?> tokenDataSource)
                     throws IOException {
-                return NormalizedMetric.getNormalizedMetric(form.dataSource,
+                return NormalizedMetric.getNormalizedMetric(tokenDataSource,
                         form.metricComboBox.getChosenMetric());
             }
 
         },
-        DISSIMILARITY_FUNCTION("Choose similarity coefficient from the list") {
+        DISSIMILARITY_FUNCTION(UiI18nProvider
+                .INSTANCE.getValue("distance.dialog.distance.type.dissimilarity.function")) {
 
             @Override
             protected TokenSettingsView getTokenSettingsView(DistanceFunctionDialog form,
@@ -490,6 +524,7 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
             public void setUi(DistanceFunctionDialog form) {
                 super.setUi(form);
                 form.gridPane.add(form.sifFactoryComboBox, 0, 6);
+                form.sifFactoryComboBox.getSelectionModel().select(0);
             }
 
             @Override
@@ -501,7 +536,7 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
             }
 
         },
-        GOWER_DISTANCE("Chooser similarity indexes for each token to form Gower's distance") {
+        GOWER_DISTANCE(UiI18nProvider.INSTANCE.getValue("distance.dialog.distance.type.gower")) {
 
             @Override
             protected TokenSettingsView getTokenSettingsView(DistanceFunctionDialog form,
@@ -515,7 +550,7 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                     throws IOException {
                     return GowerDistance.produceGowerDistance(
                             form.gowerTokenSimilarityIndexesFactories, form.weights,
-                            form.dataSource);
+                            tokenDataSource);
             }
         };
 
@@ -553,11 +588,14 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
 
     private class TokenSettingsView extends VBox {
 
+        // may be used in derived classes
+        @SuppressWarnings("unused")
         protected int index;
 
         public TokenSettingsView(int index) {
             this.index = index;
-            CheckBox inUseCheckBox = new CheckBox("Check if current token is in use");
+            CheckBox inUseCheckBox = new CheckBox(UiI18nProvider
+                    .INSTANCE.getValue("distance.dialog.check.box.token.in.use"));
             inUseCheckBox.setSelected(DistanceFunctionDialog.this.inUse[index]);
             inUseCheckBox.selectedProperty().addListener((ov, old_val, new_val) -> {
                 DistanceFunctionDialog.this.inUse[index] = new_val;
@@ -576,7 +614,8 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                 //inUseCheckBox.setSelected(false);
             }
             getChildren().addAll(new Label(tableView.getColumns().get(index + 1).getText()),
-                    new Label(tokenTypes[index].toString()), inUseCheckBox);
+                    new Label(UiI18nProvider.INSTANCE.getValue(tokenTypes[index].toString())),
+                    inUseCheckBox);
             setPrefWidth(270); // TODO ugly, but i don't know how to do better
             // also see setupTableHeaders(Pane[]) line 4
         }
@@ -586,10 +625,10 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
 
         public SyntheticTokenSettingsView(int index) {
             super(index);
-            ComboBox<GowerTokenSimilarityIndexFactory<?>> tdcComboBox = new ComboBox<>();
+            ComboBox<GowerTokenSimilarityIndexFactory<?>> tdcComboBox = new UiI18nComboBox<>();
             if (TokenType.isSupportedTokenType(DistanceFunctionDialog.this.tokenTypes[index])) {
                 final GowerTokenSimilarityIndexFactory<?>[] tdcFactories =
-                        Registers.GOWER_TOKEN_SIMILARITY_INDEX_FACTORY_REGISTER
+                        DistanceRegisters.GOWER_TOKEN_SIMILARITY_INDEX_FACTORY_REGISTER
                                 .get(tokenTypes[index]);
                 tdcComboBox.getItems().addAll(tdcFactories);
                 tdcComboBox.valueProperty().addListener((ov, old_val,
@@ -617,20 +656,22 @@ public class DistanceFunctionDialog extends GenericValueReturnDialog<DistanceFun
                         }
                     }
                 });
-                getChildren().addAll(new Label("Choose proper token diff calc:"), tdcComboBox,
-                        new Label("Set weight for current token:"), weightTextField);
+                getChildren().addAll(new Label(UiI18nProvider.INSTANCE
+                        .getValue("distance.dialog.label.choose.token.diff.calc")), tdcComboBox,
+                        new Label(UiI18nProvider.INSTANCE
+                                .getValue("distance.dialog.label.token.weight.input")), weightTextField);
 
             }
         }
     }
 
-    private class MetricComboBox extends ComboBox<Metric> {
+    private class MetricComboBox extends UiI18nComboBox<Metric> {
 
         private Metric chosenMetric;
 
         public MetricComboBox() {
             super();
-            getItems().addAll(Registers.SIMPLE_METRIC_REGISTER);
+            getItems().addAll(DistanceRegisters.SIMPLE_METRIC_REGISTER);
             getItems().add(PNorm.getPNorm(1));
             // ugly and breaks OOP rules but i don't want to implement another layer of
             // factories just for a single PNorm

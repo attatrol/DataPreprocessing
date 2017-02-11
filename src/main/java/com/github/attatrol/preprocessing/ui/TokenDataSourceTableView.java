@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.github.attatrol.preprocessing.datasource.AbstractTokenDataSource;
 import com.github.attatrol.preprocessing.datasource.Record;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -30,12 +31,14 @@ public class TokenDataSourceTableView extends TableView<Record<Object[]>> {
     /**
      * Title for index column.
      */
-    private static final String INDEX_COLUMN_HEADER = "Index";
+    private static final String INDEX_COLUMN_HEADER =
+            UiI18nProvider.INSTANCE.getValue("data.source.table.index.column.name");
 
     /**
      * Generic name for an unnamed token column.
      */
-    private static final String STUB_COLUMN_HEADER = "Token #%d";
+    private static final String STUB_COLUMN_HEADER =
+            UiI18nProvider.INSTANCE.getValue("data.source.table.token.column.name");
 
     /**
      * Data source used to fill table

@@ -63,14 +63,4 @@ public class PNorm extends Metric {
         }
         return Math.pow(accumulator,  oneOverP);
     }
-
-    /**
-     * {@inheritDoc}<br/>
-     * Used in ui.
-     */
-    @Override
-    public String toString() {
-        return "PNorm [p=" + p + "]";
-    }
-
 }

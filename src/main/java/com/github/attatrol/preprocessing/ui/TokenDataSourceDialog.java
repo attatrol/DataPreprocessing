@@ -3,6 +3,7 @@ package com.github.attatrol.preprocessing.ui;
 
 import com.github.attatrol.preprocessing.datasource.DefaultTokenDataSource;
 import com.github.attatrol.preprocessing.datasource.syntax.SyntaxRegister;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
 
 import javafx.scene.Node;
@@ -36,7 +37,7 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
      */
     private Label statusLabel = new Label();
     {
-        statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold; -fx-font-size: 19;");
         statusLabel.setWrapText(true);
     }
 
@@ -48,7 +49,7 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
 
     private Button loadButton = new LoadExternalSourceButton(this);
 
-    private ComboBox<SyntaxRegister> syntaxSetupComboBox = new DataSourceSyntaxComboBox(this);
+    private ComboBox<SyntaxRegister> setupSyntaxComboBox = new DataSourceSyntaxComboBox(this);
 
     private Button setSyntaxButton = new SetSyntaxButton(this);
 
@@ -69,8 +70,6 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
 
     public TokenDataSourceDialog() {
         setResizable(true);
-        // final double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
-        //setWidth(screenWidth);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         setResultConverter(dialogButton -> {
@@ -88,6 +87,7 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
         this.getDialogPane().setContent(contentPane);
         entities = new TokenDataSourceEnitities();
         setState(TokenDataSourceDialogState.INITIAL_0);
+        setTitle(UiI18nProvider.INSTANCE.getValue("data.source.dialog.title"));
     }
 
     public void setAdditionalContent(Node node) {
@@ -105,18 +105,20 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
     }
 
     private void fillContentPane() {
-        // Button grid
         GridPane buttonGrid = UiUtils.getGridPane();
         buttonGrid.setMaxWidth(400);
         buttonGrid.add(statusLabel, 0, 0, 2, 1);
         buttonGrid.add(progressBar, 0, 1);
         buttonGrid.add(loadButton, 0, 2);
-        buttonGrid.add(new Label("Setup data source syntax:"), 0, 3);
-        syntaxSetupComboBox.setMinWidth(100);
-        buttonGrid.add(syntaxSetupComboBox, 0, 4);
-        buttonGrid.add(new Label("Confirm syntax choice:"), 0, 5);
+        buttonGrid.add(new Label(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.label.set.syntax")), 0, 3);
+        setupSyntaxComboBox.setMinWidth(100);
+        buttonGrid.add(setupSyntaxComboBox, 0, 4);
+        buttonGrid.add(new Label(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.label.confirm.syntax")), 0, 5);
         buttonGrid.add(setSyntaxButton, 0, 6);
-        buttonGrid.add(new Label("Setup data source parsing:"), 0, 7);
+        buttonGrid.add(new Label(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.label.setup.parsing")), 0, 7);
         buttonGrid.add(createDataSourceButton, 0, 8);
         // border pane
         contentPane.setMinWidth(1000);
@@ -125,87 +127,92 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
     }
 
     public enum TokenDataSourceDialogState {
-        INITIAL_0("Choose file with a data source") {
+        INITIAL_0(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.0")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
                 form.setAdditionalContent(null);
-                form.progressBar.setProgress(0.f);//form.progressBar.setDisable(true);
-                form.syntaxSetupComboBox.getSelectionModel().clearSelection();
-                form.syntaxSetupComboBox.getItems().clear();
+                form.progressBar.setProgress(0.f);
+                form.setupSyntaxComboBox.getSelectionModel().clearSelection();
+                form.setupSyntaxComboBox.getItems().clear();
                 setControlsDisabled(form, false, true, true, true, true);
             }
 
         },
-        SOURCE_FILE_LOADING_1("File chosen, wait until its preview is loaded") {
+        SOURCE_FILE_LOADING_1(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.1")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
                 form.getTokenDataSourceEntities().erase();
-                form.progressBar.setProgress(-1.f);//form.progressBar.setDisable(false);
-                form.syntaxSetupComboBox.getSelectionModel().clearSelection();
-                form.syntaxSetupComboBox.getItems().clear();
+                form.progressBar.setProgress(-1.f);
+                form.setupSyntaxComboBox.getSelectionModel().clearSelection();
+                form.setupSyntaxComboBox.getItems().clear();
                 setControlsDisabled(form, true, true, true, true, true);
             }
 
         },
-        SOURCE_FILE_SET_2("File chosen, please set its syntax") {
+        SOURCE_FILE_SET_2(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.2")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(0.f);//form.progressBar.setDisable(true);
-                form.syntaxSetupComboBox.getItems()
+                form.progressBar.setProgress(0.f);
+                form.setupSyntaxComboBox.getItems().clear();
+                form.setupSyntaxComboBox.getItems()
                         .addAll(form.entities.getExternalSourceType().getPossibleSyntaxes());
                 setControlsDisabled(form, false, false, true, true, true);
             }
 
         },
-        SOURCE_SYNTAX_CHOSEN_3("Data source syntax chosen, press \"Set syntax\" to confirm choice.") {
+        SOURCE_SYNTAX_CHOSEN_3(String.format(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.state.3"),
+                UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.button.set.syntax"))) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(0.f);//form.progressBar.setDisable(true);
+                form.progressBar.setProgress(0.f);
                 setControlsDisabled(form, false, false, false, true, true);
             }
 
         },
-        SOURCE_SYNTAX_LOADING_4("Data source syntax set, wait until parsing is finished") {
+        SOURCE_SYNTAX_LOADING_4(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.4")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(-1.f);//form.progressBar.setDisable(false);
+                form.progressBar.setProgress(-1.f);
                 setControlsDisabled(form, true, true, true, true, true);
             }
 
         },
-        SOURCE_SYNTAX_SET_5("Data source syntax set, set its token parsers") {
+        SOURCE_SYNTAX_SET_5(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.5")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(0.f);//form.progressBar.setDisable(true);
+                form.progressBar.setProgress(0.f);
                 setControlsDisabled(form, false, false, false, false, true);
             }
 
         },
-        TOKEN_SOURCE_IN_GENERATION_6("Token data source being generated") {
+        TOKEN_SOURCE_IN_GENERATION_6(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.state.6")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(-1.f);//form.progressBar.setDisable(false);
+                form.progressBar.setProgress(-1.f);
                 setControlsDisabled(form, true, true, true, true, true);
             }
 
         },
-        TOKEN_SOURCE_SET_7("Token data source set, press OK to end data source setup") {
+        TOKEN_SOURCE_SET_7(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.7")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
-                form.progressBar.setProgress(0.f);//form.progressBar.setDisable(true);
+                form.progressBar.setProgress(0.f);
                 setControlsDisabled(form, false, false, false, false, false);
             }
 
         },
-        FILE_READING_ERROR("Data file i/o error happened, you have to restart process") {
+        FILE_READING_ERROR(UiI18nProvider.INSTANCE.getValue("data.source.dialog.state.error.io")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
@@ -213,8 +220,8 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
             }
 
         },
-        DATA_SOURCE_SYNTAX_ERROR(
-                "Data source parsing error happened, you have to restart process") {
+        DATA_SOURCE_SYNTAX_ERROR(UiI18nProvider.INSTANCE.getValue(
+                "data.source.dialog.state.error.syntax")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
@@ -222,8 +229,8 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
             }
 
         },
-        MISSING_SUBSTITUTOR_GENERATION_ERROR("Missing tokens' substitutors generation "
-                + "error happened, you have to restart process") {
+        MISSING_SUBSTITUTOR_GENERATION_ERROR(UiI18nProvider
+                .INSTANCE.getValue("data.source.dialog.state.error.substitutor.generation")) {
 
             @Override
             public void applyState(TokenDataSourceDialog form) {
@@ -248,7 +255,7 @@ public class TokenDataSourceDialog extends Dialog<TokenDataSourceAndMisc> {
                 boolean isDisabledSyntaxSetupComboBox, boolean isDisabledSetSyntaxButton,
                 boolean isDisabledCreateDataSourceButton, boolean isDisabledOkButton) {
             form.loadButton.setDisable(isDisabledLoadButton);
-            form.syntaxSetupComboBox.setDisable(isDisabledSyntaxSetupComboBox);
+            form.setupSyntaxComboBox.setDisable(isDisabledSyntaxSetupComboBox);
             form.setSyntaxButton.setDisable(isDisabledSetSyntaxButton);
             form.createDataSourceButton.setDisable(isDisabledCreateDataSourceButton);
             form.okButton.setDisable(isDisabledOkButton);

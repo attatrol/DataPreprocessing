@@ -3,6 +3,7 @@ package com.github.attatrol.preprocessing.datasource.parsing.missing;
 import java.io.IOException;
 
 import com.github.attatrol.preprocessing.datasource.AbstractTokenDataSource;
+import com.github.attatrol.preprocessing.datasource.syntax.SyntaxRegister;
 
 /**
  * Factory method must be implemented for any 
@@ -23,7 +24,8 @@ public interface MissingTokenSubstitutorFactory<V> {
 	 * @throws IOException on i/o error
 	 * @throws IllegalArgumentException on failure to process token properly.
 	 */
-	MissingTokenSubstitutor<V> produceSubstitutor(AbstractTokenDataSource<?> dataSource, int index)
+	MissingTokenSubstitutor<V> produceSubstitutor(AbstractTokenDataSource<?> dataSource,
+	        int index)
 			throws IOException, IllegalArgumentException;
 
 }

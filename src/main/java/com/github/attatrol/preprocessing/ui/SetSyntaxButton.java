@@ -1,3 +1,4 @@
+
 package com.github.attatrol.preprocessing.ui;
 
 import java.io.IOException;
@@ -10,31 +11,35 @@ import com.github.attatrol.preprocessing.datasource.parsing.record.RecordTokeniz
 import com.github.attatrol.preprocessing.datasource.syntax.TitledTokenDataSourceSyntax;
 import com.github.attatrol.preprocessing.datasource.syntax.TokenDataSourceSyntax;
 import com.github.attatrol.preprocessing.ui.TokenDataSourceDialog.TokenDataSourceDialogState;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
 
 import javafx.scene.control.Button;
 
 /**
- * Confirms {@link TokenDataSourceSyntax} choice in {@link DataSourceSyntaxComboBox},
- * then creates and registers in entities basic data source and token features.
+ * Confirms {@link TokenDataSourceSyntax} choice in {@link DataSourceSyntaxComboBox}, then creates
+ * and registers in entities basic data source and token features.
+ * 
  * @author atta_troll
  *
  */
 class SetSyntaxButton extends Button {
 
     public SetSyntaxButton(TokenDataSourceDialog form) {
-        super("Set syntax");
+        super(UiI18nProvider.INSTANCE.getValue("data.source.dialog.button.set.syntax"));
         setOnAction(ev -> {
             form.setState(TokenDataSourceDialogState.SOURCE_SYNTAX_LOADING_4);
             try {
                 final TokenDataSourceEnitities entities = form.getTokenDataSourceEntities();
                 final TokenDataSourceSyntax<?, ?> syntax = entities.getDataSourceSyntax();
-                final DataSource<?> basicDataSource = syntax.getBasicDataSource(entities.getExternalSource());
+                final DataSource<?> basicDataSource =
+                        syntax.getBasicDataSource(entities.getExternalSource());
                 entities.setBasicDataSource(basicDataSource);
                 final TokenFeatures[] features = produceTokenFeatures(basicDataSource, syntax);
                 entities.setTokenFeatures(features);
                 form.setAdditionalContent(TokenParserSetupPane.createTokenSetupPane(form));
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 UiUtils.showExceptionMessage(ex);
                 form.setState(TokenDataSourceDialogState.DATA_SOURCE_SYNTAX_ERROR);
             }
@@ -44,10 +49,14 @@ class SetSyntaxButton extends Button {
 
     /**
      * Creates array of token features for current data source.
-     * @param basicDataSource current basic data source
-     * @param syntax syntax for current data source
+     * 
+     * @param basicDataSource
+     *        current basic data source
+     * @param syntax
+     *        syntax for current data source
      * @return token features that describe tokens of current data source
-     * @throws IOException on data source i/o exception
+     * @throws IOException
+     *         on data source i/o exception
      */
     @SuppressWarnings({
         "unchecked",

@@ -11,6 +11,9 @@ import com.github.attatrol.preprocessing.datasource.parsing.missing.MissingToken
 import com.github.attatrol.preprocessing.datasource.parsing.record.RecordTokenizer;
 import com.github.attatrol.preprocessing.datasource.syntax.TokenDataSourceSyntax;
 import com.github.attatrol.preprocessing.ui.TokenDataSourceDialog.TokenDataSourceDialogState;
+import com.github.attatrol.preprocessing.ui.i18n.ToStringMappingI18nComboBox;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nComboBox;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
 import com.github.attatrol.preprocessing.ui.uimodel.UnprocessedTokenDataSource;
 
@@ -45,12 +48,14 @@ class TokenParserSetupPane extends GridPane {
      * Button that loads next {@link #RECORD_LIMIT} records in token views.
      */
     private Button loadNextRecords =
-            new Button(String.format("Load %d next records", RECORD_LIMIT));
+            new Button(String.format(UiI18nProvider.INSTANCE
+                    .getValue("token.parser.setup.button.load.next"), RECORD_LIMIT));
 
     /**
      * Button that reloads data source to the beginning.
      */
-    private Button reloadRecords = new Button("Reload records");
+    private Button reloadRecords = new Button(UiI18nProvider.INSTANCE
+            .getValue("token.parser.setup.button.reload"));
 
     /**
      * Private ctor. Used by {@link #createTokenSetupPane(TokenDataSourceDialog)}
@@ -65,12 +70,15 @@ class TokenParserSetupPane extends GridPane {
         add(loadNextRecords, 0, 0, 2, 1);
         add(reloadRecords, 2, 0, 2, 1);
         for (int i = 0; i < featuresViews.length; i++) {
-            add(new Label("Enter title:"), i, 1);
+            add(new Label(UiI18nProvider.INSTANCE
+                    .getValue("token.parser.setup.pane.label.enter.title")), i, 1);
             add(featuresViews[i].getTitleTextField(), i, 2);
-            add(new Label("Choose token type:"), i, 3);
+            add(new Label(UiI18nProvider.INSTANCE
+                    .getValue("token.parser.setup.pane.choose.token.type")), i, 3);
             add(featuresViews[i].getTokenTypeComboBox(), i, 4);
             if (featuresViews[i].hasOmissions()) {
-                add(new Label("Choose substitutor for missing tokens:"), i, 5);
+                add(new Label(UiI18nProvider.INSTANCE
+                        .getValue("token.parser.setup.pane.choose.substitutor")), i, 5);
                 add(featuresViews[i].getSubstitutorComboBox(), i, 6);
                 add(featuresViews[i].getTokenPreview(), i, 7);
             }
@@ -155,10 +163,11 @@ class TokenParserSetupPane extends GridPane {
             });
         }
 
-        private final ComboBox<TokenType> tokenTypeComboBox = new ComboBox<>();
+        private final ComboBox<TokenType> tokenTypeComboBox = new ToStringMappingI18nComboBox<>(
+                UiI18nProvider.INSTANCE);
 
         private final ComboBox<MissingTokenSubstitutorFactory<?>> substitutorComboBox =
-                new ComboBox<>();
+                new UiI18nComboBox<>();
 
         private final TextField titleTextField = new TextField();
 

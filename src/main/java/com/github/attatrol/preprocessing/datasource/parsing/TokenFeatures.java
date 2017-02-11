@@ -1,15 +1,6 @@
 package com.github.attatrol.preprocessing.datasource.parsing;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import com.github.attatrol.preprocessing.datasource.DataSource;
-import com.github.attatrol.preprocessing.datasource.TextFileDataSource;
-import com.github.attatrol.preprocessing.datasource.TitledDataSource;
-import com.github.attatrol.preprocessing.datasource.TokenDataSourceUtils;
-import com.github.attatrol.preprocessing.datasource.parsing.missing.MissingTokenSubstitutor;
 import com.github.attatrol.preprocessing.datasource.parsing.missing.MissingTokenSubstitutorFactory;
-import com.github.attatrol.preprocessing.datasource.parsing.record.RecordTokenizer;
 
 /**
  * Common features of a token, POJO.

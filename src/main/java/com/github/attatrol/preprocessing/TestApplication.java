@@ -1,9 +1,12 @@
-package com.github.attatrol.preprocessing.ui;
+package com.github.attatrol.preprocessing;
 
 import java.util.Optional;
 
 import com.github.attatrol.preprocessing.datasource.AbstractTokenDataSource;
 import com.github.attatrol.preprocessing.distance.DistanceFunction;
+import com.github.attatrol.preprocessing.ui.DistanceFunctionDialog;
+import com.github.attatrol.preprocessing.ui.TokenDataSourceAndMisc;
+import com.github.attatrol.preprocessing.ui.TokenDataSourceDialog;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
 
 import javafx.application.Application;
@@ -12,6 +15,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+/**
+ * Test application that shows both dialogs.
+ * @author atta_troll
+ *
+ */
 public class TestApplication extends Application {
 
     /**

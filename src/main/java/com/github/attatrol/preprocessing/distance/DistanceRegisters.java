@@ -1,11 +1,11 @@
 
 package com.github.attatrol.preprocessing.distance;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.github.attatrol.preprocessing.datasource.parsing.TokenType;
 import com.github.attatrol.preprocessing.distance.metric.ChebyshevMetric;
@@ -44,23 +44,23 @@ import com.github.attatrol.preprocessing.distance.nonmetric.similarity.SmirnovIn
  * @author atta_troll
  *
  */
-public class Registers {
+public class DistanceRegisters {
 
     /**
      * Contains immutable state-less metrics.
      */
-    public static final Set<Metric> SIMPLE_METRIC_REGISTER;
+    public static final List<Metric> SIMPLE_METRIC_REGISTER;
     static {
-        Set<Metric> metrics = new HashSet<>();
-        metrics.add(new ChebyshevMetric());
+        List<Metric> metrics = new ArrayList<>();
         metrics.add(new EuclideanMetric());
         metrics.add(new ManhattanMetric());
-        SIMPLE_METRIC_REGISTER = Collections.unmodifiableSet(metrics);
+        metrics.add(new ChebyshevMetric());
+        SIMPLE_METRIC_REGISTER = Collections.unmodifiableList(metrics);
     }
 
-    public static final Set<SimilarityIndexFactory<?>> SIMILARITY_INDEX_FACTORY_REGISTER;
+    public static final List<SimilarityIndexFactory<?>> SIMILARITY_INDEX_FACTORY_REGISTER;
     static {
-        Set<SimilarityIndexFactory<?>> sifRegister = new HashSet<>();
+        List<SimilarityIndexFactory<?>> sifRegister = new ArrayList<>();
         sifRegister.add(new OverlapIndex.Factory());
         sifRegister.add(new Goodall1Index.Factory());
         sifRegister.add(new Goodall2Index.Factory());
@@ -74,7 +74,7 @@ public class Registers {
         sifRegister.add(new LinIndex.Factory());
         sifRegister.add(new SmirnovIndex.Factory());
         sifRegister.add(new AnderbergIndex.Factory());
-        SIMILARITY_INDEX_FACTORY_REGISTER = Collections.unmodifiableSet(sifRegister);
+        SIMILARITY_INDEX_FACTORY_REGISTER = Collections.unmodifiableList(sifRegister);
     }
 
     /**
@@ -84,11 +84,9 @@ public class Registers {
     static {
         Map<TokenType, GowerTokenSimilarityIndexFactory<?>[]> tdsRegister = new HashMap<>();
         tdsRegister.put(TokenType.INTEGER, new GowerTokenSimilarityIndexFactory<?>[] {
-            //new NormalizedIntegerEuclidSimilarityIndex.Factory(),
             new NormalizedIntegerManhattanSimilarityIndex.Factory(),
         });
         tdsRegister.put(TokenType.FLOAT, new GowerTokenSimilarityIndexFactory<?>[] {
-            //new NormalizedFloatEuclidSimilarityIndex.Factory(),
             new NormalizedFloatManhattanSimilarityIndex.Factory(),
         });
         tdsRegister.put(TokenType.BINARY, new GowerTokenSimilarityIndexFactory<?>[] {

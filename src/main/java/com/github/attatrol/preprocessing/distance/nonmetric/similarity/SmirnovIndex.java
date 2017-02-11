@@ -9,7 +9,9 @@ import java.util.Map;
  * values taken by the same attribute. The Smirnov
  * measure is probabilistic for both matches and mismatches.
  * For  a  match, the  similarity  is  high  when  the  frequency  of  the
- * matching value is low, and the other values occur frequently.
+ * matching value is low, and the other values occur frequently.<br/>
+ * <b>Important note:</b>This index is normalized to have its values in range [0, 1]
+ * Normalizing denominator is 2N.
  * @see <a href=
  *      "http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.140.8831&rep=rep1&type=pdf">Detailed
  *      overview of all indexes</a>
@@ -34,7 +36,7 @@ public class SmirnovIndex extends AbstractSimilarityIndex {
         super(occurrences, tokenTotalNumber);
         sums = new double[tokenTotalNumber.length];
         for (int  i = 0; i < tokenTotalNumber.length; i++) {
-            denominator += getTokenCardinality(i);
+            denominator += getTokenCardinality(i) * tokenTotalNumber[i];;
             for (Map.Entry<Object, Long> entry : occurrences[i].entrySet()) {
                 sums[i] += tokenTotalNumber[i] - entry.getValue() != 0
                         ? ((double) entry.getValue())

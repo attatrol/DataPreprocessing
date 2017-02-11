@@ -50,14 +50,17 @@ public class MostCommonValueSubstitutor<V> extends MissingTokenSubstitutor<V> {
             Map<V, Long> occurrences = new HashMap<>();
             dataSource.reset();
             while (dataSource.hasNext()) {
-                @SuppressWarnings("unchecked")
-                V value = (V) (dataSource.next().getData()[index]);
-                Long occurenceCount = occurrences.get(value);
-                if (occurenceCount == null) {
-                    occurrences.put(value, 1L);
-                }
-                else {
-                    occurrences.put(value, occurenceCount + 1);
+                Object rawValue = dataSource.next().getData()[index];
+                if (rawValue != null) {
+                    @SuppressWarnings("unchecked")
+                    V value = (V) rawValue;
+                    Long occurenceCount = occurrences.get(value);
+                    if (occurenceCount == null) {
+                        occurrences.put(value, 1L);
+                    }
+                    else {
+                        occurrences.put(value, occurenceCount + 1);
+                    }
                 }
             }
             long maxOccurrenceCount = 0L;

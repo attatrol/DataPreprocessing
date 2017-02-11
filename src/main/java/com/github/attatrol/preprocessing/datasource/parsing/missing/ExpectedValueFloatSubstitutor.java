@@ -55,10 +55,10 @@ public class ExpectedValueFloatSubstitutor extends MissingTokenSubstitutor<Doubl
 			long count = 0;
 			dataSource.reset();
 			while (dataSource.hasNext()) {
-				Double value = (Double) dataSource.next().getData()[index];
-				if (value != null) {
+				Object rawValue = dataSource.next().getData()[index];
+				if (rawValue != null) {
 					count++;
-					sum += value;
+					sum += (Double) rawValue;
 				}
 			}
 			return new ExpectedValueFloatSubstitutor(index, count != 0 ? sum / count : 0.);

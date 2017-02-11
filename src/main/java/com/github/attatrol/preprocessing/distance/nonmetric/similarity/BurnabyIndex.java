@@ -35,7 +35,7 @@ public class BurnabyIndex extends AbstractSimilarityIndex {
         for (int i = 0; i < tokenTotalNumber.length; i++) {
             for (Map.Entry<Object, Long> entry : occurrences[i].entrySet()) {
                 doubledSumOfProbabilityLogs[i] +=
-                        Math.log(1 - entry.getValue() / tokenTotalNumber[i]);
+                        Math.log(1 - ((double) entry.getValue()) / tokenTotalNumber[i]);
             }
             doubledSumOfProbabilityLogs[i] *= 2.;
         }

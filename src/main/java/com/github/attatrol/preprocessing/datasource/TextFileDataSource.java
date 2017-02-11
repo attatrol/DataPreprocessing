@@ -58,6 +58,9 @@ public class TextFileDataSource implements TitledDataSource<String> {
     public TextFileDataSource(File file, boolean hasTitles) {
         this.file = file;
         this.hasTitles = hasTitles;
+        {
+            
+        }
     }
 
     /**
@@ -110,13 +113,17 @@ public class TextFileDataSource implements TitledDataSource<String> {
     /**
      * @return raw title as a string, may return {@code null}
      * if file is empty or flag of having titles is {@code false}.
+     * @throws IOException on internal i/o error
      */
-    public String getTitles() {
+    public String getTitles() throws IOException {
+        if (rawTitlesString == null && hasTitles && hasNext()) {
+            setup();
+        }
     	return rawTitlesString;
     }
 
     /**
-     * Checks if IO operation is aviable,
+     * Checks if IO operation is available,
      * calls for setup when internal state is not initialized fully.
      * @throws IOException on failure to perform stream opening.
      */

@@ -3,6 +3,7 @@ package com.github.attatrol.preprocessing.ui;
 
 import java.io.IOException;
 
+import com.github.attatrol.preprocessing.datasource.AbstractTokenDataSource;
 import com.github.attatrol.preprocessing.datasource.DataSource;
 import com.github.attatrol.preprocessing.datasource.DefaultTokenDataSource;
 import com.github.attatrol.preprocessing.datasource.parsing.TokenFeatures;
@@ -11,8 +12,8 @@ import com.github.attatrol.preprocessing.datasource.parsing.missing.MissingToken
 import com.github.attatrol.preprocessing.datasource.parsing.record.RecordTokenizer;
 import com.github.attatrol.preprocessing.datasource.parsing.token.TokenParser;
 import com.github.attatrol.preprocessing.ui.TokenDataSourceDialog.TokenDataSourceDialogState;
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.UiUtils;
-import com.github.attatrol.preprocessing.ui.uimodel.UnprocessedTokenDataSource;
 
 import javafx.scene.control.Button;
 
@@ -28,7 +29,7 @@ class CreateDefaultTokenDataSourceButton extends Button {
         "rawtypes"
     })
     public CreateDefaultTokenDataSourceButton(TokenDataSourceDialog form) {
-        super("Generate token parsers");
+        super(UiI18nProvider.INSTANCE.getValue("data.source.dialog.button.create.data.source"));
         setOnAction(ev -> {
             form.setState(TokenDataSourceDialogState.TOKEN_SOURCE_IN_GENERATION_6);
             final TokenDataSourceEnitities entities = form.getTokenDataSourceEntities();
@@ -58,13 +59,21 @@ class CreateDefaultTokenDataSourceButton extends Button {
                 new MissingTokenSubstitutor<?>[numberOfTokens];
         final DataSource<?> basicDataSource = entities.getBasicDataSource();
         final RecordTokenizer<?, ?> tokenizer = entities.getDataSourceSyntax().getTokenizer();
-        final UnprocessedTokenDataSource rawDataSource =
-                new UnprocessedTokenDataSource(basicDataSource, numberOfTokens, tokenizer);
+        final TokenParser<?, ?>[] tokenParsers = entities.getTokenParsers();
+        //final UnprocessedTokenDataSource rawDataSource =
+                //new UnprocessedTokenDataSource(basicDataSource, numberOfTokens, tokenizer);
+        @SuppressWarnings({
+            "rawtypes",
+            "unchecked"
+        })
+        final AbstractTokenDataSource<?> substitutorDataSource = new DefaultTokenDataSource(basicDataSource,
+                tokenizer, numberOfTokens, tokenParsers,
+                new MissingTokenSubstitutor<?>[numberOfTokens]);
         for (int i = 0; i < numberOfTokens; i++) {
             final MissingTokenSubstitutorFactory<?> factory =
                     features[i].getMissingTokenSubstitutor();
             if (factory != null) {
-                substitutors[i] = factory.produceSubstitutor(rawDataSource, i);
+                substitutors[i] = factory.produceSubstitutor(substitutorDataSource, i);
             }
         }
         return substitutors;
