@@ -4,3 +4,6 @@ Here is a set of parsers and measures for different external data sources.
 This set is accessed by easy and verbose gui wizards written in JavaFX.
 
 Current state of project is far beyond proper release version, but already used in my university projects.
+
+v.0.1 initial release
+v.0.1.1 russian translation added

@@ -3,6 +3,8 @@ package com.github.attatrol.preprocessing.ui.misc;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -40,8 +42,8 @@ public final class UiUtils {
      */
     public static void showExceptionMessage(Exception exception) {
         Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Error!");
-        alert.setHeaderText("Something bad happened");
+        alert.setTitle(UiI18nProvider.INSTANCE.getValue("ui.utils.alert.error.title"));
+        alert.setHeaderText(UiI18nProvider.INSTANCE.getValue("ui.utils.alert.error.info"));
         alert.setContentText(exception.getLocalizedMessage());
 
         StringWriter sw = new StringWriter();
@@ -57,7 +59,8 @@ public final class UiUtils {
         GridPane expContent = new GridPane();
         expContent.setMaxWidth(Double.MAX_VALUE);
 
-        Label label = new Label("The exception stacktrace was:");
+        Label label = new Label(UiI18nProvider
+                .INSTANCE.getValue("ui.utils.alert.error.stacktrace"));
         expContent.add(label, 0, 0);
         expContent.add(textArea, 0, 1);
         alert.getDialogPane().setExpandableContent(expContent);
@@ -70,7 +73,7 @@ public final class UiUtils {
      */
     public static void showInfoMessage(String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Info");
+        alert.setTitle(UiI18nProvider.INSTANCE.getValue("ui.utils.alert.info.title"));
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -82,7 +85,7 @@ public final class UiUtils {
      */
     public static void showErrorMessage(String message) {
         Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle(UiI18nProvider.INSTANCE.getValue("ui.utils.alert.error.title"));
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

@@ -1,5 +1,6 @@
 package com.github.attatrol.preprocessing.ui;
 
+import com.github.attatrol.preprocessing.ui.i18n.UiI18nProvider;
 import com.github.attatrol.preprocessing.ui.misc.PositiveDoubleReturnDialog;
 
 /**
@@ -13,15 +14,16 @@ class PNormCoeffReturnDialog extends PositiveDoubleReturnDialog {
      * Default ctor.
      */
     public PNormCoeffReturnDialog() {
-        super("P-Norm coefficient setup dialog",
-                "Enter P-Norm coefficient value (must be greater than 1)");
+        super(UiI18nProvider.INSTANCE.getValue("p.norm.dialog.title"),
+                UiI18nProvider.INSTANCE.getValue("p.norm.dialog.info"));
     }
 
     @Override
     protected void validate() throws Exception {
         super.validate();
         if (Double.parseDouble(textField.getText()) < 1.) {
-            throw new IllegalStateException("Value must be greater than 1");
+            throw new IllegalStateException(
+                    UiI18nProvider.INSTANCE.getValue("p.norm.dialog.bad.value"));
         }
     }
 }
