@@ -7,6 +7,7 @@ import com.github.attatrol.preprocessing.datasource.DataSource;
 import com.github.attatrol.preprocessing.datasource.TextFileDataSource;
 import com.github.attatrol.preprocessing.datasource.parsing.TokenType;
 import com.github.attatrol.preprocessing.datasource.parsing.record.CommaSeparatedStringSplitter;
+import com.github.attatrol.preprocessing.datasource.parsing.record.SemicolonSeparatedStringSplitter;
 import com.github.attatrol.preprocessing.datasource.parsing.record.TabulationSeparatedStringSplitter;
 
 /**
@@ -33,6 +34,33 @@ public enum SyntaxRegister {
     COMMA_SEPARATED_TITLED_LINES(
             new TitledTokenDataSourceSyntax<String, String>(new CommaSeparatedStringSplitter(),
                     new CommaSeparatedStringSplitter(), StringTokenParsers.STRING_TOKEN_PARSERS) {
+
+                @Override
+                public DataSource<String> getBasicDataSource(Object file) {
+                    return new TextFileDataSource((File) file, true);
+                }
+
+                @Override
+                public TokenType detectTokenType(Object token) {
+                    return StringTokenParsers.detectStringTokenType(token);
+                }
+            }),
+    SEMICOLON_SEPARATED_LINES(new TokenDataSourceSyntax<String, String>(new SemicolonSeparatedStringSplitter(),
+            StringTokenParsers.STRING_TOKEN_PARSERS) {
+
+        @Override
+        public DataSource<String> getBasicDataSource(Object file) {
+            return new TextFileDataSource((File) file, false);
+        }
+
+        @Override
+        public TokenType detectTokenType(Object token) {
+            return StringTokenParsers.detectStringTokenType(token);
+        }
+    }),
+    SEMICOLON_SEPARATED_TITLED_LINES(
+            new TitledTokenDataSourceSyntax<String, String>(new SemicolonSeparatedStringSplitter(),
+                    new SemicolonSeparatedStringSplitter(), StringTokenParsers.STRING_TOKEN_PARSERS) {
 
                 @Override
                 public DataSource<String> getBasicDataSource(Object file) {

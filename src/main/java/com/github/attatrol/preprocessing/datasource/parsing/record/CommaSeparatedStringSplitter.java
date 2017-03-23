@@ -2,7 +2,7 @@ package com.github.attatrol.preprocessing.datasource.parsing.record;
 
 /**
  * Recovers comma separated substrings from some strings.<br/>
- * Returns {@code null} if token string is empty
+ * Returns {@code null} if token string is empty.
  * @author atta_troll
  *
  */

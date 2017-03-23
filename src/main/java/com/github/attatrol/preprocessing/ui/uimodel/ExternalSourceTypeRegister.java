@@ -22,8 +22,10 @@ public enum ExternalSourceTypeRegister {
     SINGLE_FILE(new SyntaxRegister[] {
         SyntaxRegister.COMMA_SEPARATED_LINES,
         SyntaxRegister.COMMA_SEPARATED_TITLED_LINES,
+        SyntaxRegister.SEMICOLON_SEPARATED_LINES,
+        SyntaxRegister.SEMICOLON_SEPARATED_TITLED_LINES,
         SyntaxRegister.TABULATION_SEPARATED_LINES,
-        SyntaxRegister.TABULATION_SEPARATED_TITLED_LINES
+        SyntaxRegister.TABULATION_SEPARATED_TITLED_LINES,
     }) {
 
         @Override
