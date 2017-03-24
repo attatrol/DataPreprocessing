@@ -42,8 +42,9 @@ public class GambaryanIndex extends AbstractSimilarityIndex {
         for (int  i = 0; i < point1.length; i++) {
             if (point1[i].equals(point2[i])) {
                 final double probability = getSampleProbability(point1[i], i);
-                result -= (probability * Math.log(probability)
-                        + (1 - probability) * Math.log(1 - probability)) / LOG2;
+                result -= probability != 1 ? (probability * Math.log(probability)
+                        + (1 - probability) * Math.log(1 - probability)) / LOG2
+                        : 0.;
             }
         }
         return result / denominator;
